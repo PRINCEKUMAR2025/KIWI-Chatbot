@@ -7,10 +7,6 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from data_processor import DataProcessor
-# Add at the top of your chatbot.py file
-from sklearnex import patch_sklearn
-patch_sklearn()
-
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

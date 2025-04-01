@@ -1,26 +1,26 @@
 import os
 import logging
-from flask import Flask, request, jsonify, render_template
-from chatbot import ECommerceBot
 
-# Add this near the top of app.py, after imports
+# Add this near the top of app.py
 import nltk
 import os
 
-# Define data directory
+# Create nltk_data directory if it doesn't exist
 nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
 if not os.path.exists(nltk_data_dir):
     os.makedirs(nltk_data_dir)
 
-# Set NLTK data path
+# Set NLTK data path and download resources
 nltk.data.path.append(nltk_data_dir)
-
-# Download required NLTK data
 try:
     nltk.download('punkt', download_dir=nltk_data_dir)
     nltk.download('stopwords', download_dir=nltk_data_dir)
-except:
-    pass
+    print("NLTK data downloaded successfully")
+except Exception as e:
+    print(f"Error downloading NLTK data: {str(e)}")
+from flask import Flask, request, jsonify, render_template
+from chatbot import ECommerceBot
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
