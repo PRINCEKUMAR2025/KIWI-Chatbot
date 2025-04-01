@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="my-2">
+                    <i class="fas fa-comments me-2"></i>KIWI ChatBot
+                </h3>
+            </div>
+            <div class="card-body bg-dark">
+                <div class="chat-container" id="chatContainer">
+                    <div class="system-message">
+                        <div class="message-content">
+                            <p>👋 Hi! I'm your ShopIt assistant. You can ask me about:</p>
+                            <ul>
+                                <li>Order details</li>
+                                <li>Product information</li>
+                                <li>Account details</li>
+                                <li>Shipping information</li>
+                            </ul>
+                            <p>How can I help you today?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <form id="chatForm" class="d-flex">
+                    <input type="text" id="userInput" class="form-control me-2" placeholder="Type your message here...">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="addSampleQuery('What products do you have?')">Products</button>
+                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="addSampleQuery('Check my order status')">Orders</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="addSampleQuery('What is my account balance?')">Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
