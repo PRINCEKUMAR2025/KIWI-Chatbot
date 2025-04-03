@@ -1,29 +1,49 @@
 import json
 import logging
+import os
+from drive_utils import GoogleDriveHandler
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class DataProcessor:
-    def __init__(self, data_path='attached_assets/formatted_dataset.jsonl'):
-        """Initialize the data processor with the path to the dataset"""
-        self.data_path = data_path
-        logger.info(f"Data processor initialized with data path: {data_path}")
+    def __init__(self, data_source=None, drive_url=None):
+        """Initialize the data processor with either local file path or Google Drive URL"""
+        self.data_source = data_source
+        self.drive_url = drive_url
+        self.drive_handler = None
         
         # Storage for processed data
         self.products = {}
         self.orders = {}
         self.users = {}
+        
+        logger.info(f"Data processor initialized with data source: {data_source or drive_url}")
     
     def load_data(self):
-        """Load and process the data from the JSONL file"""
+        """Load and process the data from either local file or Google Drive"""
         try:
             dataset = []
-            with open(self.data_path, 'r', encoding='utf-8') as file:
-                for line in file:
-                    if line.strip():  # Skip empty lines
-                        dataset.append(json.loads(line))
+            
+            if self.drive_url:
+                # Load from Google Drive
+                if not self.drive_handler:
+                    self.drive_handler = GoogleDriveHandler()
+                dataset = self.drive_handler.load_dataset_from_drive(self.drive_url)
+            else:
+                # Load from local file
+                if not self.data_source:
+                    self.data_source = 'attached_assets/formatted_dataset.jsonl'
+                
+                if os.path.exists(self.data_source):
+                    with open(self.data_source, 'r', encoding='utf-8') as file:
+                        for line in file:
+                            if line.strip():  # Skip empty lines
+                                dataset.append(json.loads(line))
+                else:
+                    logger.error(f"Local file not found: {self.data_source}")
+                    return []
             
             # Process specific data types
             self._categorize_data(dataset)
