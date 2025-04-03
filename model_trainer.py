@@ -16,9 +16,9 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class ModelTrainer:
-    def __init__(self, data_path='attached_assets/formatted_dataset.jsonl'):
-        """Initialize the model trainer with data path"""
-        self.data_processor = DataProcessor(data_path)
+    def __init__(self, data_source=None, drive_url=None):
+        """Initialize the model trainer with either local file path or Google Drive URL"""
+        self.data_processor = DataProcessor(data_source=data_source, drive_url=drive_url)
         self.dataset = self.data_processor.load_data()
         
         # Download NLTK data if not already downloaded
