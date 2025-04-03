@@ -29,9 +29,9 @@ except Exception as e:
     logger.error(f"Failed to download NLTK data: {str(e)}")
 
 class ECommerceBot:
-    def __init__(self, data_path='attached_assets/formatted_dataset.jsonl'):
-        """Initialize the e-commerce chatbot"""
-        self.data_processor = DataProcessor(data_path)
+    def __init__(self, data_source=None, drive_url=None):
+        """Initialize the e-commerce chatbot with either local file path or Google Drive URL"""
+        self.data_processor = DataProcessor(data_source=data_source, drive_url=drive_url)
         self.dataset = self.data_processor.load_data()
         self.vectorizer = TfidfVectorizer(
             tokenizer=self.preprocess_text,
