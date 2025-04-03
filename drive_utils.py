@@ -13,9 +13,9 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class GoogleDriveHandler:
-    def __init__(self, credentials_path='credentials.json'):
+    def __init__(self, credentials_path=None):
         """Initialize Google Drive handler with credentials path"""
-        self.credentials_path = credentials_path
+        self.credentials_path = credentials_path or os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
         self.SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
         self.credentials = None
         self.service = None
@@ -25,22 +25,27 @@ class GoogleDriveHandler:
         """Authenticate with Google Drive"""
         try:
             # Check if credentials file exists
-            if not os.path.exists(self.credentials_path):
+            if not self.credentials_path or not os.path.exists(self.credentials_path):
                 logger.error(f"Credentials file not found at {self.credentials_path}")
                 return
 
             # Load credentials from file
-            self.credentials = Credentials.from_authorized_user_file(
+            try:
+                with open(self.credentials_path, 'r') as f:
+                    creds_data = json.load(f)
+                    if not creds_data.get('installed'):
+                        logger.error("Invalid credentials format")
+                        return
+            except json.JSONDecodeError:
+                logger.error("Invalid JSON in credentials file")
+                return
+
+            # Create flow instance
+            flow = InstalledAppFlow.from_client_secrets_file(
                 self.credentials_path, self.SCOPES)
 
-            # If credentials are invalid or expired, refresh them
-            if not self.credentials or not self.credentials.valid:
-                if self.credentials and self.credentials.expired and self.credentials.refresh_token:
-                    self.credentials.refresh(Request())
-                else:
-                    flow = InstalledAppFlow.from_client_secrets_file(
-                        self.credentials_path, self.SCOPES)
-                    self.credentials = flow.run_local_server(port=0)
+            # Run the OAuth flow
+            self.credentials = flow.run_local_server(port=0)
 
             # Build the Drive API service
             self.service = build('drive', 'v3', credentials=self.credentials)
@@ -78,6 +83,10 @@ class GoogleDriveHandler:
     def get_file_id_from_url(self, url):
         """Extract file ID from Google Drive URL"""
         try:
+            if not url:
+                logger.error("No URL provided")
+                return None
+
             # Handle different Google Drive URL formats
             if 'drive.google.com/file/d/' in url:
                 return url.split('drive.google.com/file/d/')[1].split('/')[0]
@@ -93,6 +102,10 @@ class GoogleDriveHandler:
     def load_dataset_from_drive(self, file_url):
         """Load dataset from Google Drive URL"""
         try:
+            if not file_url:
+                logger.error("No file URL provided")
+                return None
+
             file_id = self.get_file_id_from_url(file_url)
             if not file_id:
                 return None
@@ -105,7 +118,15 @@ class GoogleDriveHandler:
             dataset = []
             for line in content.splitlines():
                 if line.strip():
-                    dataset.append(json.loads(line))
+                    try:
+                        dataset.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        logger.warning(f"Skipping invalid JSON line: {line[:100]}...")
+                        continue
+
+            if not dataset:
+                logger.error("No valid data found in the file")
+                return None
 
             logger.info(f"Successfully loaded {len(dataset)} entries from Google Drive")
             return dataset
