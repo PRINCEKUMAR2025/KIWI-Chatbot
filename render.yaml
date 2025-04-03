@@ -9,8 +9,25 @@ services:
         value: 3.9.0
       - key: GOOGLE_APPLICATION_CREDENTIALS
         value: /app/credentials.json
+      - key: DRIVE_URL
+        sync: false
+      - key: DATA_SOURCE
+        value: null
+      - key: OAUTHLIB_INSECURE_TRANSPORT
+        value: "1"
+      - key: OAUTHLIB_RELAX_TOKEN_SCOPE
+        value: "1"
     files:
       - name: credentials.json
         contents: |
-          # Your credentials.json content will be here
-          # Make sure to replace this with your actual credentials
+          {
+            "installed": {
+              "client_id": "YOUR_CLIENT_ID",
+              "project_id": "YOUR_PROJECT_ID",
+              "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+              "token_uri": "https://oauth2.googleapis.com/token",
+              "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+              "client_secret": "YOUR_CLIENT_SECRET",
+              "redirect_uris": ["http://localhost"]
+            }
+          }
