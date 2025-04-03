@@ -29,13 +29,9 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "default_secret_key")
 
-# Get Google Drive URL from environment variable
-DRIVE_URL = os.environ.get("DRIVE_URL")
-DATA_SOURCE = os.environ.get("DATA_SOURCE")
-
 # Initialize the chatbot
 try:
-    ecommerce_bot = ECommerceBot(data_source=DATA_SOURCE, drive_url=DRIVE_URL)
+    ecommerce_bot = ECommerceBot()
     logger.info("Chatbot initialized successfully")
 except Exception as e:
     logger.error(f"Failed to initialize chatbot: {str(e)}")
